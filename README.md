@@ -1,7 +1,7 @@
 # DiffRobOT
 
 ## Prerequisite
-The code are developed based on Python 3.7 and Tensorflow 2.2.0, conda is recommended for enviroment isolation.
+The project is developed based on Python 3.7 and Tensorflow 2.2.0, conda is recommended for enviroment isolation.
 
 ```bash
 conda create -n py37-tf2-gpu python=3.7
