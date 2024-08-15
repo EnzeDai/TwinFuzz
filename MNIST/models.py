@@ -2,7 +2,7 @@ from tensorflow import keras
 
 def LeNet5(input_shape=(28, 28, 1)):
     input_tensor = keras.layers.Input(shape=input_shape)
-
+  
     x = keras.layers.Convolution2D(6, (5, 5), activation='relu', padding='same', name='block1_conv1')(input_tensor)
     x = keras.layers.MaxPooling2D(pool_size= (2, 2), name='block1_pool1')(x)
 
@@ -13,7 +13,7 @@ def LeNet5(input_shape=(28, 28, 1)):
     x = keras.layers.Dense(120, activation='relu', name='fc1')(x)
     x = keras.layers.Dense(84, activation='relu', name='fc2')(x)
     x = keras.layers.Dense(10, name='before_softmax')(x)
-    x = keras.layers.Activation('softmax', name='redictions')(x)
+    x = keras.layers.Activation('softmax', name='predictions')(x)
     
     return keras.models.Model(input_tensor, x)
 
