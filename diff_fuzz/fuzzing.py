@@ -1,5 +1,6 @@
 import os
 import time
+import configparser
 import tensorflow as tf
 from tensorflow import keras
 
@@ -13,9 +14,19 @@ if gpus:
     except RuntimeError as e:
         print(e)
 
-# Load for inference
+# Load configurations from config.ini
+def read_conf():
+    conf = configparser.ConfigParser()
+    conf.read('config.ini')
+    name = conf.get('model', 'name')
+    dataset = conf.get('model', 'dataset')
+
+    return name, dataset
+
+# Load models for inference
+name, dataset = read_conf()
 resist_model = keras.models.load_model("")
-vulner_model = keras.models.load_model("")
+vulner_model = keras.models.load_model(f"../{dataset}/{name}_{dataset}.h5")
 
 
 # filter seeds?
@@ -26,7 +37,7 @@ vulner_model = keras.models.load_model("")
 
 
 lr = 0.1
-data_sets = []
+sample_set = []
 
 start = time.time()
 # Start fuzzing
