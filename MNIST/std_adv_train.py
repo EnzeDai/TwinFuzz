@@ -89,14 +89,20 @@ def gen_adv_samples():
 # Standard adversarial training using PGD and FGSM
 def adv_train():
 
+    fgsm_advpath = "FGSM_AdvTrain.npz"
+    pgd_advpath = "PGD_AdvTrain.npz"
+
+    if os.path.exists(fgsm_advpath) and os.path.exists(pgd_advpath):
+        pass
+    else:
+        gen_adv_samples()
+
     os.environ["CUDA_VISIBLE_DEVICES"]="0"
-
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
-    model = keras.models.load_model(f"./{name}_MNIST.h5")
 
-    with np.load("./FGSM_AdvTrain.npz") as f:
+    with np.load(fgsm_advpath) as f:
         fgsm_train, fgsm_labels = f['advs'], f['labels']
-    with np.load("./PGD_AdvTrain.npz") as f:
+    with np.load(pgd_advpath) as f:
         pgd_train, pgd_labels = f['advs'], f['labels']
 
     adv_train = np.concatenate((fgsm_train, pgd_train))
@@ -130,4 +136,5 @@ def adv_train():
     return
 
 if __name__ == "__main__":
+    gen_adv_samples()
     adv_train()
