@@ -28,7 +28,7 @@ def fgsm_attack(model, inputs, labels, ep=0.3, isRand=True, randRate=1):
     in_adv = tf.clip_by_value(in_adv, clip_value_min=0, clip_value_max=1)
 
     idxs = np.where(np.argmax(model(in_adv), axis=1) != np.argmax(labels, axis=1))[0]
-    print("Success FGSM Attack Num:", len(idxs))
+    print("[INFO] Success FGSM Attack Num:", len(idxs))
 
     in_adv, in_cp, target = in_adv.numpy()[idxs], in_cp[idxs], target.numpy()[idxs]
     in_adv, target = tf.Variable(in_adv), tf.constant(target)
@@ -61,7 +61,7 @@ def pgd_attack(model, inputs, labels, step, ep=0.3, epochs=10, isRand=True, rand
         in_adv = tf.Variable(in_adv)
 
     idxs = np.where(np.argmax(model(in_adv), axis=1) != np.argmax(target, axis=1))[0]
-    print("Success PGD Attack Num:", len(idxs))
+    print("[INFO] Success PGD Attack Num:", len(idxs))
 
     in_adv, in_cp, target = in_adv.numpy()[idxs], in_cp[idxs], target.numpy()[idxs]
     in_adv, target = tf.Variable(in_adv), tf.constant(target)
@@ -100,6 +100,12 @@ def gen_adv_samples():
     advs, labels = pgd_attack(model, x_train, y_train, step=None)
     np.savez('./PGD_AdvTrain.npz', advs=advs, labels=labels)
 
+    test, labels = fgsm_attack(model, x_test, y_test)
+    np.savez('./FGSM_AdvTest.npz', test=test, labels=labels)
+
+    test, labels = pgd_attack(model, x_test, y_test, step=None)
+    np.savez('./PGD_AdvTest.npz', test=test, labels=labels)
+
     return
 
 
@@ -108,9 +114,11 @@ def adv_train():
 
     fgsm_advpath = 'FGSM_AdvTrain.npz'
     pgd_advpath = 'PGD_AdvTrain.npz'
+    fgsm_advtest = 'FGSM_AdvTest.npz'
+    pgd_advtest = 'PGD_AdvTest.npz'
 
     if os.path.exists(fgsm_advpath) and os.path.exists(pgd_advpath):
-        print('[INFO]: Adv samples are generated.')
+        print('[INFO]: Adv samples have been generated.')
     else:
         gen_adv_samples()
 
@@ -118,13 +126,21 @@ def adv_train():
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
     x_train, x_test, y_train, y_test = data_format(x_train, x_test, y_train, y_test)
 
+    # Adv Train data
     with np.load(fgsm_advpath) as f:
         fgsm_train, fgsm_labels = f['advs'], f['labels']
     with np.load(pgd_advpath) as f:
         pgd_train, pgd_labels = f['advs'], f['labels']
+    # Adv Test data
+    with np.load(fgsm_advtest) as f:
+        fgsm_test, fgsm_test_labels = f['test'], f['labels']
+    with np.load(pgd_advtest) as f:
+        pgd_test, pgd_test_labels = f['test'], f['labels']
 
     adv_train = np.concatenate((fgsm_train, pgd_train))
     adv_labels = np.concatenate((fgsm_labels, pgd_labels))
+    adv_test = np.concatenate((fgsm_test, pgd_test))
+    adv_test_labels = np.concatenate((fgsm_test_labels, pgd_test_labels))
 
     # incremental adv train, adv_num / clean_num = 20%
     sampleNum = [600*i for i in [1, 2, 4, 8, 12, 16, 20]]
@@ -144,12 +160,12 @@ def adv_train():
         y_train_adv = np.concatenate((y_train, selectLabel), axis=0)
 
         # Now retraining
-        ori_model.fit(x_train_adv, y_train_adv, epochs=10, batch_size=64, verbose=0, callbacks=callbacks)
+        ori_model.fit(x_train_adv, y_train_adv, epochs=10, batch_size=64, verbose=0, callbacks=callbacks, validation_data=(adv_test, adv_test_labels))
 
         best_resist_model = keras.models.load_model(model_ckpoint)
 
         _, acc_clean = best_resist_model.evaluate(x_test, y_test, verbose=0)
-        print("After adv training, clean accuracy:", acc_clean)
+        print("[INFO] After adv training, clean accuracy:", acc_clean)
 
     return
 
