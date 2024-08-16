@@ -130,7 +130,7 @@ def adv_train():
 
     for n in sampleNum:
         model_ckpoint = f"./checkpoint/{name}_MNIST_Adv_{n}.h5"
-        ori_model = keras.models.load_model("./{name}_MNIST.h5")
+        ori_model = keras.models.load_model(f"./{name}_MNIST.h5")
 
         checkpoint = ModelCheckpoint(filepath=model_ckpoint, monitor='val_accuracy', verbose=0, save_best_only=True)
         callbacks = [checkpoint]
