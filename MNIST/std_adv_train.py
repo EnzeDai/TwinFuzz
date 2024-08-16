@@ -129,4 +129,5 @@ def adv_train():
 
     return
 
-
+if __name__ == "__main__":
+    adv_train()
