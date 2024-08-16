@@ -28,7 +28,7 @@ def fgsm_attack(model, inputs, labels, ep=0.3, isRand=True, randRate=1):
     in_adv = tf.clip_by_value(in_adv, clip_value_min=0, clip_value_max=1)
 
     idxs = np.where(np.argmax(model(in_adv), axis=1) != np.argmax(labels, axis=1))[0]
-    print("Number of Successful Attacks:", len(idxs))
+    print("Success FGSM Attack Num:", len(idxs))
 
     in_adv, in_cp, target = in_adv.numpy()[idxs], in_cp[idxs], target.numpy()[idxs]
     in_adv, target = tf.Variable(in_adv), tf.constant(target)
@@ -61,7 +61,7 @@ def pgd_attack(model, inputs, labels, step, ep=0.3, epochs=10, isRand=True, rand
         in_adv = tf.Variable(in_adv)
 
     idxs = np.where(np.argmax(model(in_adv), axis=1) != np.argmax(target, axis=1))[0]
-    print("Number of Successful Attacks:", len(idxs))
+    print("Success PGD Attack Num:", len(idxs))
 
     in_adv, in_cp, target = in_adv.numpy()[idxs], in_cp[idxs], target.numpy()[idxs]
     in_adv, target = tf.Variable(in_adv), tf.constant(target)
