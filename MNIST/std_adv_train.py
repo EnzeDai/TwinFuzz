@@ -110,7 +110,7 @@ def adv_train():
     pgd_advpath = "PGD_AdvTrain.npz"
 
     if os.path.exists(fgsm_advpath) and os.path.exists(pgd_advpath):
-        pass
+        print('[INFO]: Adv samples are generated.')
     else:
         gen_adv_samples()
 
@@ -144,7 +144,7 @@ def adv_train():
         y_train_adv = np.concatenate((y_train, selectLabel), axis=0)
 
         # Now retraining
-        ori_model.fit(x_train_adv, y_train_adv, epochs=10, batch_size=64, erbose=0, callbacks=callbacks)
+        ori_model.fit(x_train_adv, y_train_adv, epochs=10, batch_size=64, verbose=0, callbacks=callbacks)
 
         best_resist_model = keras.models.load_model(model_ckpoint)
 
