@@ -106,8 +106,8 @@ def gen_adv_samples():
 # Standard adversarial training using PGD and FGSM
 def adv_train():
 
-    fgsm_advpath = "FGSM_AdvTrain.npz"
-    pgd_advpath = "PGD_AdvTrain.npz"
+    fgsm_advpath = 'FGSM_AdvTrain.npz'
+    pgd_advpath = 'PGD_AdvTrain.npz'
 
     if os.path.exists(fgsm_advpath) and os.path.exists(pgd_advpath):
         print('[INFO]: Adv samples are generated.')
@@ -154,5 +154,4 @@ def adv_train():
     return
 
 if __name__ == "__main__":
-    gen_adv_samples()
     adv_train()
