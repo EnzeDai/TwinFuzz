@@ -24,7 +24,7 @@ y_test = keras.utils.to_categorical(y_test, 10)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m', choices=['lenet5', 'vgg16', 'googlenet', 'inception-v3', 'resnet-20', 'inception-resnet-v2'], help='models for training')
+    parser.add_argument('-m', choices=['lenet5', 'resnet-20', 'googlenet', 'inception-v3', 'inception-resnet-v2', 'vgg16'], help='models for training')
     args = parser.parse_args()
 
     if args.m == 'lenet5':
