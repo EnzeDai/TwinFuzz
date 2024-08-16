@@ -69,6 +69,21 @@ def pgd_attack(model, inputs, labels, step, ep=0.3, epochs=10, isRand=True, rand
     return in_adv.numpy(), target.numpy()
 
 
+# Format data structure
+def data_format(x_train, x_test, y_train, y_test):
+
+    # Reshape
+    x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)
+    x_test = x_test.reshape(x_test.shape[0], 28, 28, 1)
+    # Normalization
+    x_train, x_test = x_train / 255.0, x_test / 255.0
+    # One-Hot Label
+    y_train = keras.utils.to_categorical(y_train, 10)
+    y_test = keras.utils.to_categorical(y_test, 10)
+
+    return x_train, x_test, y_train, y_test
+
+
 # Use dataset train data to generate adv samples.
 def gen_adv_samples():
 
@@ -76,6 +91,8 @@ def gen_adv_samples():
 
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
     model = keras.models.load_model(f"./{name}_MNIST.h5")
+
+    x_train, x_test, y_train, y_test = data_format(x_train, x_test, y_train, y_test)
 
     advs, labels = fgsm_attack(model, x_train, y_train)
     np.savez('./FGSM_AdvTrain.npz', advs=advs, labels=labels)
