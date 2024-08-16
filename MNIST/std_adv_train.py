@@ -43,7 +43,7 @@ def pgd_attack(model, inputs, labels, step, ep=0.3, epochs=10, isRand=True, rand
     target = tf.constant(labels)
 
     if step == None:
-        step = ep / 6
+        step = ep / 8
 
     if isRand:
         inputs = inputs + np.random.uniform(-ep * randRate, ep * randRate)
@@ -97,7 +97,7 @@ def gen_adv_samples():
     advs, labels = fgsm_attack(model, x_train, y_train)
     np.savez('./FGSM_AdvTrain.npz', advs=advs, labels=labels)
 
-    advs, labels = pgd_attack(model, x_train, y_train)
+    advs, labels = pgd_attack(model, x_train, y_train, step=None)
     np.savez('./PGD_AdvTrain.npz', advs=advs, labels=labels)
 
     return
