@@ -165,7 +165,9 @@ def adv_train():
         best_resist_model = keras.models.load_model(model_ckpoint)
 
         _, acc_clean = best_resist_model.evaluate(x_test, y_test, verbose=0)
-        print("[INFO] After adv training, clean accuracy:", acc_clean)
+        print(f"[INFO] Round {n/600} Adv Train, Clean ACC:", acc_clean)
+    
+    print("[INFO] After Adv Training, Clean ACC:", acc_clean)
 
     return
 
