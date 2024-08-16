@@ -116,6 +116,7 @@ def adv_train():
 
     os.environ["CUDA_VISIBLE_DEVICES"]="0"
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+    x_train, x_test, y_train, y_test = data_format(x_train, x_test, y_train, y_test)
 
     with np.load(fgsm_advpath) as f:
         fgsm_train, fgsm_labels = f['advs'], f['labels']
