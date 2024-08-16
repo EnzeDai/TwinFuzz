@@ -117,7 +117,7 @@ def adv_train():
     fgsm_advtest = 'FGSM_AdvTest.npz'
     pgd_advtest = 'PGD_AdvTest.npz'
 
-    if os.path.exists(fgsm_advpath) and os.path.exists(pgd_advpath):
+    if os.path.exists(fgsm_advpath) and os.path.exists(pgd_advtest):
         print('[INFO]: Adv samples have been generated.')
     else:
         gen_adv_samples()
