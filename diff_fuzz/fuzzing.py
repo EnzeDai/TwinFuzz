@@ -5,7 +5,7 @@ import configparser
 import tensorflow as tf
 from tensorflow import keras
 sys.path.append("../")
-from attacks import cw_2_atk, cw_inf_atk
+from attacks import deepfool
 
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
@@ -37,20 +37,14 @@ if __name__ == "__main__":
     vulner_model = keras.models.load_model(f"../{dataset}/{name}_{dataset}.h5")
 
     # Attack side sample generate
-    cw_l2 = cw_2_atk.CwL2(vulner_model)
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
-    # Reshape
-    x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)
-    x_test = x_test.reshape(x_test.shape[0], 28, 28, 1)
-    # Normalization
-    x_train, x_test = x_train / 255.0, x_test / 255.0
-    # One-Hot Label
-    y_train = keras.utils.to_categorical(y_train, 10)
-    y_test = keras.utils.to_categorical(y_test, 10)
+    adv_all = []
+    for img in x_train:
+        _, _, _, _, adv = deepfool.deepfool(img, vulner_model)
+        adv_all.append(adv)
 
-    adv = cw_l2.attack(x_train, y_train)
 
-    print(len(adv))
+    print(len(adv_all))
 
 
     # differential testing
