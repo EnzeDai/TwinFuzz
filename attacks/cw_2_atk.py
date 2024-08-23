@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 binary_search_step = 9  # Number of times to adjust the constant with binary search
-max_iter= 100           # Number of iterations to perform gradient descent
+max_iter= 1000          # Number of iterations to perform gradient descent
 abort_early = True      # If we stop improving, abort gradient descent early
 lr = 1e-2               # Larger values converge faster to less accurate results
 targeted = False        # Should we target one specific class? or just be wrong?
@@ -48,7 +48,7 @@ class CwL2:
                 imgs[i:i + self.batch_size], targets))
         return np.array(adv_res)
 
-    def attack_batch(self, imgs, labs):
+    def attack_batch(self, imgs, labels):
         """
         Run the attack on a batch of images and labels.
         """
@@ -115,7 +115,7 @@ class CwL2:
 
         for outer_step in range(self.BINARY_SEARCH_STEPS):
             batch = tf.Variable(imgs[:batch_size], dtype=tf.float32)
-            batchlab = tf.Variable(labs[:batch_size], dtype=tf.float32)
+            batchlab = tf.Variable(labels[:batch_size], dtype=tf.float32)
             bestl2 = [1e10] * batch_size
             bestscore = [-1] * batch_size
             if self.repeat == True and outer_step == self.BINARY_SEARCH_STEPS - 1:
@@ -127,8 +127,7 @@ class CwL2:
             for iteration in range(self.MAX_ITERATIONS):
                 # perform the attack
 
-                l, l2s, scores, nimg, loss1, loss2 = train_step(
-                    modifier, batch, batchlab, const)
+                l, l2s, scores, nimg, loss1, loss2 = train_step(modifier, batch, batchlab, const)
 
                 if np.all(scores >= -.0001) and np.all(scores <= 1.0001):
                     if np.allclose(np.sum(scores, axis=1), 1.0, atol=1e-3):

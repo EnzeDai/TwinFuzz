@@ -33,7 +33,9 @@ class CwLinf:
 
 
     def gradient_descent(self, model):
-        
+        # Set constant
+        image_size, num_channels, num_labels = 28, 1, 10
+
         # whether attack success
         def check_success(x, y):
             if self.TARGETED:
@@ -41,16 +43,16 @@ class CwLinf:
             else:
                 return x != y
         
-        shape = (1,model.image_size,model.image_size,model.num_channels)
+        shape = (1, image_size, image_size, num_channels)
 
         # the variable to optimize over
         modifier = tf.Variable(np.zeros(shape,dtype=np.float32))
         
-        tau = tf.placeholder(tf.float32, [])
-        simg = tf.placeholder(tf.float32, shape)
-        timg = tf.placeholder(tf.float32, shape)
-        tlab = tf.placeholder(tf.float32, (1, model.num_labels))
-        const = tf.placeholder(tf.float32, [])
+        tau = tf.Variable(dtype=tf.float32)
+        simg = tf.Variable(tf.float32, shape)
+        timg = tf.Variable(tf.float32, shape)
+        tlab = tf.Variable(tf.float32, (1, num_labels))
+        const = tf.Variable(tf.float32, [])
         
         newimg = (tf.tanh(modifier + simg)/2)
         
