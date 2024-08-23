@@ -12,16 +12,11 @@ targeted = False        # Target or untarget attack
 const_factor = 2.0      # Should > 1, where we increase constant
 
 # Carlini Wagner Attack, L_infinite, from 2017 S&P
-class CwLinfAttack:
-    def __init__(self, sess, model,
-                 targeted = targeted, lr = lr,
-                 max_iterations = max_iter, abort_early = abort_early,
-                 initial_const = init_const, largest_const = max_const,
-                 reduce_const = reduce_const, decrease_factor = decrease_factor,
-                 const_factor = const_factor):
+class CwLinf:
+    def __init__(self, model, targeted = targeted, lr = lr, max_iterations = max_iter, abort_early = abort_early, initial_const = init_const,
+                 largest_const = max_const, reduce_const = reduce_const, decrease_factor = decrease_factor, const_factor = const_factor):
         
         self.model = model
-        self.sess = sess
         self.TARGETED = targeted
         self.lr = lr
         self.MAX_ITERATIONS = max_iterations
@@ -34,10 +29,10 @@ class CwLinfAttack:
 
         self.I_KNOW_WHAT_I_AM_DOING_AND_WANT_TO_OVERRIDE_THE_PRESOFTMAX_CHECK = False
         
-        self.grad = self.gradient_descent(sess, model)
+        self.grad = self.gradient_descent(model)
 
 
-    def gradient_descent(self, sess, model):
+    def gradient_descent(self, model):
         
         # whether attack success
         def check_success(x, y):
@@ -77,13 +72,16 @@ class CwLinfAttack:
         loss = const * loss1 + loss2
 
         # setup the adam optimizer and keep track of variables
-        start_vars = set(x.name for x in tf.global_variables())
-        optimizer = tf.train.AdamOptimizer(self.lr)
-        train = optimizer.minimize(loss, var_list=[modifier])
+        optimizer = tf.keras.optimizers.Adam(self.lr)
 
-        end_vars = tf.global_variables()
-        new_vars = [x for x in end_vars if x.name not in start_vars]
-        init = tf.variables_initializer(var_list=[modifier]+new_vars)
+        # @tf.function
+        def train_step():
+            with tf.GradientTape() as tape:
+                current_loss = loss
+            gradients = tape.gradient(current_loss, [modifier])
+            optimizer.apply_gradients(zip(gradients, [modifier]))
+            return loss, output
+        
 
         def doit(oimgs, labs, starts, tt, CONST):
             # convert to tanh-space
@@ -91,22 +89,29 @@ class CwLinfAttack:
             starts = np.arctanh(np.array(starts)*1.999999)
     
             # initialize the variables
-            sess.run(init)
+            modifier.assign(np.zeros(shape, dtype=np.float32))
+            tau.assign(tt)
+            const.assign(CONST)
+
             while CONST < self.LARGEST_CONST:
                 # try solving for each value of the constant
                 print('try const', CONST)
                 for step in range(self.MAX_ITERATIONS):
-                    feed_dict={timg: imgs, 
-                               tlab:labs, 
-                               tau: tt,
-                               simg: starts,
-                               const: CONST}
-                    if step%(self.MAX_ITERATIONS//10) == 0:
-                        print(step,sess.run((loss,loss1,loss2),feed_dict=feed_dict))
+                    feed_dict={
+                        timg: imgs, 
+                        tlab:labs, 
+                        tau: tt,
+                        simg: starts,
+                        const: CONST
+                    }
+                    
+                    if step % (self.MAX_ITERATIONS // 10) == 0:
+                        loss_value, loss1_value, loss2_value = train_step()
+                        print(step, loss_value.numpy(), loss1_value.numpy(), loss2_value.numpy())
 
                     # perform the update step
-                    _, works, scores = sess.run([train, loss, output], feed_dict=feed_dict)
-                    
+                    loss_value, scores = train_step()
+
                     if np.all(scores>=-.0001) and np.all(scores <= 1.0001):
                         if np.allclose(np.sum(scores,axis=1), 1.0, atol=1e-3):
                             if not self.I_KNOW_WHAT_I_AM_DOING_AND_WANT_TO_OVERRIDE_THE_PRESOFTMAX_CHECK:
@@ -114,12 +119,14 @@ class CwLinfAttack:
 
                     
                     # it worked
-                    if works < .0001*CONST and self.ABORT_EARLY:
-                        get = sess.run(output, feed_dict=feed_dict)
+                    if loss_value < 0.0001 * CONST and self.ABORT_EARLY:
+                        get = self.model(tf.tanh(modifier + simg) / 2, training=False)
                         works = check_success(np.argmax(get), np.argmax(labs))
                         if works:
-                            scores, origscores, nimg = sess.run((output,orig_output,newimg),feed_dict=feed_dict)
-                            l2s=np.square(nimg-np.tanh(imgs)/2).sum(axis=(1,2,3))
+                            scores = self.model(tf.tanh(modifier + simg) / 2, training=False)
+                            origscores = self.model(tf.tanh(timg) / 2, training=False)
+                            nimg = tf.tanh(modifier + simg) / 2
+                            l2s = np.square(nimg - np.tanh(imgs) / 2).numpy().sum(axis=(1, 2, 3))
                             
                             return scores, origscores, nimg, CONST
 
@@ -131,8 +138,10 @@ class CwLinfAttack:
 
     def attack(self, imgs, targets):
         adv_res = []
+
         for img,target in zip(imgs, targets):
             adv_res.extend(self.attack_single(img, target))
+        
         return np.array(adv_res)
     
 
