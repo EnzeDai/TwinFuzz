@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import configparser
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 sys.path.append("../")
@@ -40,11 +41,15 @@ if __name__ == "__main__":
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
     adv_all = []
     for img in x_train:
-        _, _, _, _, adv = deepfool.deepfool(img, vulner_model)
-        adv_all.append(adv)
-
-
-    print(len(adv_all))
+        _, _, orig_label, adv_label, adv_img = deepfool.deepfool(img, vulner_model)
+        if adv_label != orig_label:
+            adv_all.append(adv_img)
+        if len(adv_all) % 100 == 0:
+            print("[INFO] Now Successful DeepFool Attack Num:", len(adv_all))
+    
+    print("[INFO] Success DeepFool Attack Num:", len(adv_all))
+    adv_all = np.array(adv_all)
+    np.savez('./DeepFool_Atks.npz', advs=adv_all)
 
 
     # differential testing

@@ -21,9 +21,9 @@ def deepfool(image, model, num_classes=10, overshoot=0.02, max_iter=50, shape=(2
 
     f_image = model(image_norm).numpy().flatten()
     I = (np.array(f_image)).flatten().argsort()[::-1]
+    # Top num_classes classes with the highest probability.
     I = I[0:num_classes]
-    label = I[0]
-    # print(label, "label")
+    label = I[0] # choose the highest probability as the original label
 
     input_shape = np.shape(image_norm)
     pert_image = copy.deepcopy(image_norm)
@@ -35,7 +35,7 @@ def deepfool(image, model, num_classes=10, overshoot=0.02, max_iter=50, shape=(2
     fs = model(x)
     k_i = label
 
-    print(fs)  # shape=(1, 10)
+    # print(fs)  # shape=(1, 10)
 
     def loss_func(logits, I, k):
         # return tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=logits)
