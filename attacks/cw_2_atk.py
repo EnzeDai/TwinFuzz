@@ -1,26 +1,24 @@
 import numpy as np
 import tensorflow as tf
 
-BINARY_SEARCH_STEPS = 9  # Number of times to adjust the constant with binary search
-MAX_ITERATIONS = 10000   # Number of iterations to perform gradient descent
-ABORT_EARLY = True       # If we stop improving, abort gradient descent early
-lr = 1e-2                # Larger values converge faster to less accurate results
-TARGETED = False         # Should we target one specific class? or just be wrong?
-CONFIDENCE = 0           # How strong the adversarial example should be
-INITIAL_CONST = 1e-3     # The initial constant c to pick as a first guess
+binary_search_step = 9  # Number of times to adjust the constant with binary search
+max_iter= 100           # Number of iterations to perform gradient descent
+abort_early = True      # If we stop improving, abort gradient descent early
+lr = 1e-2               # Larger values converge faster to less accurate results
+targeted = False        # Should we target one specific class? or just be wrong?
+conf = 0                # How strong the adversarial example should be
+init_const = 1e-3       # The initial constant c to pick as a first guess
 
 
 # Carlini Wagner Attack, L_2, from 2017 S&P
 class CwL2Attack:
-    def __init__(self, sess, model, batch_size=1, confidence = CONFIDENCE,
-                 targeted = TARGETED, learning_rate = lr,
-                 binary_search_steps = BINARY_SEARCH_STEPS, max_iterations = MAX_ITERATIONS,
-                 abort_early = ABORT_EARLY, 
-                 initial_const = INITIAL_CONST,
-                 boxmin = -0.5, boxmax = 0.5):
+    def __init__(self, sess, model, batch_size=1, confidence = conf, targeted = targeted, learning_rate = lr,
+                 binary_search_steps = binary_search_step, max_iterations = max_iter, abort_early = abort_early, 
+                 initial_const = init_const, boxmin = -0.5, boxmax = 0.5):
 
 
         image_size, num_channels, num_labels = model.image_size, model.num_channels, model.num_labels
+        
         self.sess = sess
         self.TARGETED = targeted
         self.LEARNING_RATE = learning_rate
@@ -101,10 +99,9 @@ class CwL2Attack:
         return np.array(adv_res)
 
     def attack_batch(self, imgs, labs):
-        """
-        Run the attack on a batch of images and labels.
-        """
-        def compare(x,y):
+        
+        # whether attack success
+        def check_success(x, y):
             if not isinstance(x, (float, int, np.int64)):
                 x = np.copy(x)
                 if self.TARGETED:
@@ -175,17 +172,17 @@ class CwL2Attack:
 
                 # adjust the best result found so far
                 for e,(l2,sc,ii) in enumerate(zip(l2s,scores,nimg)):
-                    if l2 < bestl2[e] and compare(sc, np.argmax(batchlab[e])):
+                    if l2 < bestl2[e] and check_success(sc, np.argmax(batchlab[e])):
                         bestl2[e] = l2
                         bestscore[e] = np.argmax(sc)
-                    if l2 < o_bestl2[e] and compare(sc, np.argmax(batchlab[e])):
+                    if l2 < o_bestl2[e] and check_success(sc, np.argmax(batchlab[e])):
                         o_bestl2[e] = l2
                         o_bestscore[e] = np.argmax(sc)
                         o_bestattack[e] = ii
 
             # adjust the constant as needed
             for e in range(batch_size):
-                if compare(bestscore[e], np.argmax(batchlab[e])) and bestscore[e] != -1:
+                if check_success(bestscore[e], np.argmax(batchlab[e])) and bestscore[e] != -1:
                     # success, divide const by two
                     upper_bound[e] = min(upper_bound[e],CONST[e])
                     if upper_bound[e] < 1e9:
