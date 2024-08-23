@@ -18,7 +18,7 @@ if gpus:
     except RuntimeError as e:
         print(e)
 
-ATTACK_SAMPLE_LIMIT = 10000
+ATTACK_SAMPLE_LIMIT = 1000
 ATTACK_SAMPLE_PATH = 'DeepFool_Atks.npz'
 
 # Load configurations from config.ini
