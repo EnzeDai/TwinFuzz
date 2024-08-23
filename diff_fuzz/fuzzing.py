@@ -19,6 +19,7 @@ if gpus:
         print(e)
 
 ATTACK_SAMPLE_LIMIT = 10000
+ATTACK_SAMPLE_PATH = 'DeepFool_Atks.npz'
 
 # Load configurations from config.ini
 def read_conf():
@@ -30,6 +31,25 @@ def read_conf():
 
     return name, dataset, adv_sample_num
 
+# DeepFool attack generator
+def df_atk_loader():
+    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+    adv_all = []
+
+    for img in x_train:
+        _, _, orig_label, adv_label, adv_img = deepfool.deepfool(img, vulner_model)
+        if adv_label != orig_label:
+            adv_all.append(adv_img)
+        if len(adv_all) % 1000 == 0:
+            print("[INFO] Now Successful DeepFool Attack Num:", len(adv_all))
+            if len(adv_all) == ATTACK_SAMPLE_LIMIT: break
+
+    print("[INFO] Success DeepFool Attack Num:", len(adv_all))
+    adv_all = np.array(adv_all)
+    np.savez('./DeepFool_Atks.npz', advs=adv_all)
+    
+    return adv_all
+    
 
 if __name__ == "__main__":
 
@@ -38,20 +58,13 @@ if __name__ == "__main__":
     resist_model = keras.models.load_model(f"../{dataset}/checkpoint/{name}_{dataset}_Adv_{adv_sample_num}.h5")
     vulner_model = keras.models.load_model(f"../{dataset}/{name}_{dataset}.h5")
 
-    # Attack side sample generate
-    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
-    adv_all = []
-    for img in x_train:
-        _, _, orig_label, adv_label, adv_img = deepfool.deepfool(img, vulner_model)
-        if adv_label != orig_label:
-            adv_all.append(adv_img)
-        if len(adv_all) % 1000 == 0:
-            print("[INFO] Now Successful DeepFool Attack Num:", len(adv_all))
-            if len(adv_all) == ATTACK_SAMPLE_LIMIT: break
-    
-    print("[INFO] Success DeepFool Attack Num:", len(adv_all))
-    adv_all = np.array(adv_all)
-    np.savez('./DeepFool_Atks.npz', advs=adv_all)
+    # Attack side samples generation
+    if os.path.exists(ATTACK_SAMPLE_PATH):
+        print('[INFO]: Adversarial samples have been generated.')
+        with np.load(ATTACK_SAMPLE_PATH) as f:
+            afv_all = f['advs']
+    else:
+        adv_all = df_atk_loader()
 
 
     # differential testing
