@@ -90,4 +90,8 @@ def deepfool(image, model, num_classes=10, overshoot=0.02, max_iter=50, shape=(2
 
     r_tot = (1 + overshoot) * r_tot
 
+    '''
+        r_tot (total perturbation); loop_i (number of iteration)
+        label (original label); k_i (adversarial label); pert_image (adversarial image)
+    '''
     return r_tot, loop_i, label, k_i, pert_image
