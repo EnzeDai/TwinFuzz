@@ -34,8 +34,8 @@ def read_conf():
 # DeepFool attack generator
 def df_atk_loader():
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+    
     adv_all = []
-
     for img in x_train:
         _, _, orig_label, adv_label, adv_img = deepfool.deepfool(img, vulner_model)
         if adv_label != orig_label:
@@ -45,7 +45,8 @@ def df_atk_loader():
             if len(adv_all) == ATTACK_SAMPLE_LIMIT: break
 
     print("[INFO] Success DeepFool Attack Num:", len(adv_all))
-    adv_all = np.array(adv_all)
+    adv_all = tf.Variable(adv_all).numpy() # shape = (limit, 1, 28, 28)
+    adv_all = adv_all.reshape(adv_all.shape[0], 28, 28, 1)
     np.savez('./DeepFool_Atks.npz', advs=adv_all)
     
     return adv_all
