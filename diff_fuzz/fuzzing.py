@@ -71,10 +71,10 @@ if __name__ == "__main__":
     # differential testing
     seeds_filter = []
 
-    resist_predicts = resist_model(adv_all)
-    vulner_predicts = vulner_model(adv_all)
+    resist_pred_idxs = np.argmax(resist_model(adv_all), axis=1)
+    vulner_pred_idxs = np.argmax(vulner_model(adv_all), axis=1)
 
-    print(resist_predicts)
+    print(resist_pred_idxs)
 
     lr = 0.1
     sample_set = []
