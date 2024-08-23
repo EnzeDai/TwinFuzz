@@ -63,7 +63,7 @@ if __name__ == "__main__":
     if os.path.exists(ATTACK_SAMPLE_PATH):
         print('[INFO]: Adversarial samples have been generated.')
         with np.load(ATTACK_SAMPLE_PATH) as f:
-            afv_all = f['advs']
+            adv_all = f['advs']
     else:
         adv_all = df_atk_loader()
 
