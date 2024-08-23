@@ -44,7 +44,7 @@ if __name__ == "__main__":
         _, _, orig_label, adv_label, adv_img = deepfool.deepfool(img, vulner_model)
         if adv_label != orig_label:
             adv_all.append(adv_img)
-        if len(adv_all) % 100 == 0:
+        if len(adv_all) % 1000 == 0:
             print("[INFO] Now Successful DeepFool Attack Num:", len(adv_all))
     
     print("[INFO] Success DeepFool Attack Num:", len(adv_all))
