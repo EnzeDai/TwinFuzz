@@ -4,6 +4,14 @@ import tensorflow as tf
 
 
 def deepfool(image, model, num_classes=10, overshoot=0.02, max_iter=50, shape=(28, 28, 1)):
+    '''
+        image - input image to be processed.
+        model - trained neural network model.
+        num_classes - number of categories predicted by the model.
+        overshoot - used to control the proportion of perturbation excess.
+        max_iter - maximum number of iterations.
+        shape - image shape (28, 28, 1) represents a 28x28 grayscale image.
+    '''
     image_array = np.array(image)
     # print(np.shape(image_array)) # 28*28
 
