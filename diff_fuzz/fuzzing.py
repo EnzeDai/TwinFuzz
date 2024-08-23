@@ -18,6 +18,7 @@ if gpus:
     except RuntimeError as e:
         print(e)
 
+ATTACK_SAMPLE_LIMIT = 10000
 
 # Load configurations from config.ini
 def read_conf():
@@ -46,6 +47,7 @@ if __name__ == "__main__":
             adv_all.append(adv_img)
         if len(adv_all) % 1000 == 0:
             print("[INFO] Now Successful DeepFool Attack Num:", len(adv_all))
+            if len(adv_all) == ATTACK_SAMPLE_LIMIT: break
     
     print("[INFO] Success DeepFool Attack Num:", len(adv_all))
     adv_all = np.array(adv_all)
@@ -54,13 +56,11 @@ if __name__ == "__main__":
 
     # differential testing
     seeds_filter = []
-    '''
-        resist_predicts = resist_model.predict(input_data)
-        vulner_predicts = vulner_model.predict(input_data)
-        # check difference
-    '''
 
+    resist_predicts = resist_model(adv_all)
+    vulner_predicts = vulner_model(adv_all)
 
+    print(resist_predicts)
 
     lr = 0.1
     sample_set = []
