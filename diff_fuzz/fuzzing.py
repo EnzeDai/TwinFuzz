@@ -75,6 +75,7 @@ if __name__ == "__main__":
     vulner_pred_idxs = np.argmax(vulner_model(adv_all), axis=1)
 
     print(resist_pred_idxs)
+    print(vulner_pred_idxs)
 
     lr = 0.1
     sample_set = []
