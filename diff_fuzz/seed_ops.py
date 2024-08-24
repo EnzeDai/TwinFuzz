@@ -14,6 +14,9 @@ def tenengrad(img):
     grad = np.sqrt(grad_x**2 + grad_y**2)
     tenengrad = np.sum(grad)
 
+    if np.isnan(tenengrad):
+        tenengrad = 0.0
+
     return tenengrad
 
 # Normalization
