@@ -43,8 +43,9 @@ def filter_data(path):
         val = tenengrad(img)
         tenen_values.append(val)
 
+    threshold = np.full_like(tenen_values, consts.CLARRITY_THRESHOLD)
 
-    filtered_idxs = np.where(tenen_values < consts.CLARRITY_THRESHOLD)[0]
+    filtered_idxs = np.where(tenen_values < threshold)[0]
     filtered_advs = imgs[filtered_idxs]
     print(filtered_idxs)
 
