@@ -5,6 +5,10 @@ import consts
 
 # Compute tenengrad for seed filtering
 def tenengrad(img):
+
+    if img.ndim == 3 and img.shape[2] == 1:
+        img = img[:, :, 0]
+
     grad_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
     grad_y = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
     grad = np.sqrt(grad_x**2 + grad_y**2)
@@ -28,13 +32,13 @@ def filter_data(path):
     with np.load(path) as f:
         imgs = f['advs']
 
-    res = []
+    filtered_advs = []
     tenen_values = []
 
     for img in imgs:
         # should be gray scale
-        if img.ndim == 3:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        if img.shape[2] != 1:
+            raise ValueError("Image should be gray scale.")
         
         val = tenengrad(img)
         tenen_values.append(val)
