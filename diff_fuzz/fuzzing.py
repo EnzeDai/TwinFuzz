@@ -32,7 +32,7 @@ def read_conf():
     return name, dataset, adv_sample_num
 
 # DeepFool attack generator
-def df_atk_loader():
+def df_atk_loader(model):
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
     
     adv_all = []
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         with np.load(ATTACK_SAMPLE_PATH) as f:
             adv_all = f['advs']
     else:
-        adv_all = df_atk_loader()
+        adv_all = df_atk_loader(model=vulner_model)
 
 
     # differential testing
