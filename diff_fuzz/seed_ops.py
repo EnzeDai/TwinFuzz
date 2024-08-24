@@ -20,15 +20,15 @@ def tenengrad(img):
     return tenengrad
 
 # Normalization
-def normalize(tenens):
-    min = np.min(tenens)
-    max = np.max(tenens)
+# def normalize(tenens):
+#     min = np.min(tenens)
+#     max = np.max(tenens)
 
-    if max == min:
-        return np.zeros_like(tenens)
-    normed = (tenens - min) / (max - min)
+#     if max == min:
+#         return np.zeros_like(tenens)
+#     normed = (tenens - min) / (max - min)
 
-    return normed
+#     return normed
 
 # Filter images by processing npz data
 def filter_data(path):
@@ -46,9 +46,9 @@ def filter_data(path):
         val = tenengrad(img)
         tenen_values.append(val)
 
-    norm_val = normalize(tenen_values)
+    mean_val = np.mean(tenen_values)
 
-    filtered_idxs = np.where(norm_val >= consts.CLARITY_THRESHOLD)[0]
+    filtered_idxs = np.where(tenen_values >= mean_val)[0]
     filtered_advs = imgs[filtered_idxs]
 
     np.savez(consts.FILTER_SAMPLE_PATH, advf = filtered_advs)
