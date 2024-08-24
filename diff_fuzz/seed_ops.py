@@ -43,10 +43,10 @@ def filter_data(path):
         val = tenengrad(img)
         tenen_values.append(val)
 
-    mean_val = np.nanmean(tenen_values)
 
-    filtered_idxs = np.where(tenen_values < mean_val)[0]
+    filtered_idxs = np.where(tenen_values < consts.CLARRITY_THRESHOLD)[0]
     filtered_advs = imgs[filtered_idxs]
+    print(filtered_idxs)
 
     np.savez(consts.FILTER_SAMPLE_PATH, advf = filtered_advs)
       
