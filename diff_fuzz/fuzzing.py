@@ -47,7 +47,7 @@ def df_atk_loader(model):
     print("[INFO] Success DeepFool Attack Num:", len(adv_all))
     adv_all = tf.Variable(adv_all).numpy() # shape = (limit, 1, 28, 28)
     adv_all = adv_all.reshape(adv_all.shape[0], 28, 28, 1)
-    np.savez('./DeepFool_Atks.npz', advs=adv_all)
+    np.savez(ATTACK_SAMPLE_PATH, advs=adv_all)
     
     return adv_all
     
