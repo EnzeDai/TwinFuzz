@@ -14,9 +14,6 @@ def tenengrad(img):
     grad = np.sqrt(grad_x**2 + grad_y**2)
     tenengrad = np.sum(grad)
 
-    if np.isnan(tenengrad):
-        tenengrad = 0.0
-
     return tenengrad
 
 # Normalization
@@ -46,9 +43,9 @@ def filter_data(path):
         val = tenengrad(img)
         tenen_values.append(val)
 
-    mean_val = np.mean(tenen_values)
+    mean_val = np.nanmean(tenen_values)
 
-    filtered_idxs = np.where(tenen_values >= mean_val)[0]
+    filtered_idxs = np.where(tenen_values < mean_val)[0]
     filtered_advs = imgs[filtered_idxs]
 
     np.savez(consts.FILTER_SAMPLE_PATH, advf = filtered_advs)
