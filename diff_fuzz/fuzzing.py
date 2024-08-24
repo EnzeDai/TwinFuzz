@@ -37,7 +37,7 @@ def df_atk_loader(model):
     
     adv_all = []
     for img in x_train:
-        _, _, orig_label, adv_label, adv_img = deepfool.deepfool(img, vulner_model)
+        _, _, orig_label, adv_label, adv_img = deepfool.deepfool(img, model)
         if adv_label != orig_label:
             adv_all.append(adv_img)
         if len(adv_all) % 1000 == 0:
