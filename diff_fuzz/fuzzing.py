@@ -5,8 +5,11 @@ import configparser
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
+
+import consts
 sys.path.append("../")
 from attacks import deepfool
+from seed_ops import filter_data
 
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
@@ -17,9 +20,6 @@ if gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
     except RuntimeError as e:
         print(e)
-
-ATTACK_SAMPLE_LIMIT = 1000
-ATTACK_SAMPLE_PATH = 'DeepFool_Atks.npz'
 
 # Load configurations from config.ini
 def read_conf():
@@ -42,12 +42,12 @@ def df_atk_loader(model):
             adv_all.append(adv_img)
         if len(adv_all) % 1000 == 0:
             print("[INFO] Now Successful DeepFool Attack Num:", len(adv_all))
-            if len(adv_all) == ATTACK_SAMPLE_LIMIT: break
+            if len(adv_all) == consts.ATTACK_SAMPLE_LIMIT: break
 
     print("[INFO] Success DeepFool Attack Num:", len(adv_all))
     adv_all = tf.Variable(adv_all).numpy() # shape = (limit, 1, 28, 28)
     adv_all = adv_all.reshape(adv_all.shape[0], 28, 28, 1)
-    np.savez(ATTACK_SAMPLE_PATH, advs=adv_all)
+    np.savez(consts.ATTACK_SAMPLE_PATH, advs=adv_all)
     
     return adv_all
     
@@ -60,33 +60,43 @@ if __name__ == "__main__":
     vulner_model = keras.models.load_model(f"../{dataset}/{name}_{dataset}.h5")
 
     # Attack side samples generation
-    if os.path.exists(ATTACK_SAMPLE_PATH):
+    if os.path.exists(consts.ATTACK_SAMPLE_PATH):
         print('[INFO]: Adversarial samples have been generated.')
-        with np.load(ATTACK_SAMPLE_PATH) as f:
+        with np.load(consts.ATTACK_SAMPLE_PATH) as f:
             adv_all = f['advs']
     else:
         adv_all = df_atk_loader(model=vulner_model)
 
 
     # differential testing
-    seeds_filter = []
-
     resist_pred_idxs = np.argmax(resist_model(adv_all), axis=1)
     vulner_pred_idxs = np.argmax(vulner_model(adv_all), axis=1)
 
     print(resist_pred_idxs)
     print(vulner_pred_idxs)
 
+    # Filter
+    filter_data(consts.ATTACK_SAMPLE_PATH)
+    with np.load(consts.FILTER_SAMPLE_PATH) as f:
+        adv_filt = f['advf']
+    
+    resist_pred_idxs = np.argmax(resist_model(adv_filt), axis=1)
+    vulner_pred_idxs = np.argmax(vulner_model(adv_filt), axis=1)
+
+    print(resist_pred_idxs)
+    print(vulner_pred_idxs)
+
+
     lr = 0.1
     sample_set = []
 
     start = time.time()
     # Start fuzzing
-    for idx in seeds_filter:
-        delta_t = time.time() - start
-        # Limit time
-        if delta_t > 300:
-            break
+    # for idx in adv_filt:
+    #     delta_t = time.time() - start
+    #     # Limit time
+    #     if delta_t > 300:
+    #         break
         
-        img_list = []
+    #     img_list = []
 
