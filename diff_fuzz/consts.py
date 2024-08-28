@@ -1,0 +1,10 @@
+CLARRITY_THRESHOLD = 1200
+ATTACK_SAMPLE_LIMIT = 1000
+FILTER_SAMPLE_PATH = 'DeepFool_Atk_Filter.npz'
+ATTACK_SAMPLE_PATH = 'DeepFool_Atks.npz'
+
+FILTER_SAMPLE_PATH_CW2 = 'cw_2_Atk_Filter.npz'
+ATTCK_SAMPLE_PATH_CW2 = 'cw_2_Atks.npz'
+
+FILTER_SAMPLE_PATH_MIM = 'mim_Atk_Filter.npz'
+ATTCK_SAMPLE_PATH_MIM = 'mim_Atks.npz'
