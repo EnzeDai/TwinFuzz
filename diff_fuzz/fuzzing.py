@@ -38,7 +38,7 @@ def find_same(preds1, preds2):
     if len(preds1) == len(preds2):
         for i in range(len(preds1)):
             if preds1[i] == preds2[i]:
-                same_preds.append(i, preds1[i])
+                same_preds.append((i, preds1[i]))
     
     return same_preds
 
