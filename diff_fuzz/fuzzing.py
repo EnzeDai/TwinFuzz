@@ -31,6 +31,17 @@ def read_conf():
 
     return name, dataset, adv_sample_num
 
+# Find same predictions
+def find_same(preds1, preds2):
+    same_preds = [] # format = (index, value)
+
+    if len(preds1) == len(preds2):
+        for i in range(len(preds1)):
+            if preds1[i] == preds2[i]:
+                same_preds.append((i, preds1[i]))
+    
+    return same_preds
+
 # DeepFool attack generator
 def df_atk_loader(model):
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
@@ -72,19 +83,24 @@ if __name__ == "__main__":
     resist_pred_idxs = np.argmax(resist_model(adv_all), axis=1)
     vulner_pred_idxs = np.argmax(vulner_model(adv_all), axis=1)
 
-    print(resist_pred_idxs)
-    print(vulner_pred_idxs)
+    # print(resist_pred_idxs)
+    # print(vulner_pred_idxs)
 
     # Filter
-    filter_data(consts.ATTACK_SAMPLE_PATH)
+    filter_idxs = filter_data(consts.ATTACK_SAMPLE_PATH)
     with np.load(consts.FILTER_SAMPLE_PATH) as f:
         adv_filt = f['advf']
     
     resist_pred_idxs = np.argmax(resist_model(adv_filt), axis=1)
     vulner_pred_idxs = np.argmax(vulner_model(adv_filt), axis=1)
 
+    print(filter_idxs)
     print(resist_pred_idxs)
     print(vulner_pred_idxs)
+
+    # Find same predicitons
+    same_preds = find_same(resist_pred_idxs, vulner_pred_idxs)
+    print(same_preds)
 
 
     lr = 0.1
