@@ -32,13 +32,13 @@ def read_conf():
     return name, dataset, adv_sample_num
 
 # Find same predictions
-def find_same(preds1, preds2, idx_list):
+def find_same(preds1, preds2):
     same_preds = [] # format = (index, value)
 
     if len(preds1) == len(preds2):
         for i in range(len(preds1)):
             if preds1[i] == preds2[i]:
-                same_preds.append((idx_list[i], preds1[i]))
+                same_preds.append(i, preds1[i])
     
     return same_preds
 
@@ -94,9 +94,9 @@ if __name__ == "__main__":
     resist_pred_idxs = np.argmax(resist_model(adv_filt), axis=1)
     vulner_pred_idxs = np.argmax(vulner_model(adv_filt), axis=1)
 
-    print(filter_idxs)
-    print(resist_pred_idxs)
-    print(vulner_pred_idxs)
+    # print(filter_idxs)
+    # print(resist_pred_idxs)
+    # print(vulner_pred_idxs)
 
     # Find same predicitons
     same_preds = find_same(resist_pred_idxs, vulner_pred_idxs, filter_idxs)
