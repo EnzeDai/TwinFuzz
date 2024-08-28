@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # print(vulner_pred_idxs)
 
     # Find same predicitons
-    same_preds = find_same(resist_pred_idxs, vulner_pred_idxs, filter_idxs)
+    same_preds = find_same(resist_pred_idxs, vulner_pred_idxs)
     print(same_preds)
 
 
