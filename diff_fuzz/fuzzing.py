@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import random
 import configparser
 import numpy as np
 import tensorflow as tf
@@ -108,11 +109,56 @@ if __name__ == "__main__":
 
     start = time.time()
     # Start fuzzing
-    # for idx in adv_filt:
-    #     delta_t = time.time() - start
-    #     # Limit time
-    #     if delta_t > 300:
-    #         break
+    for idx, pred in same_preds:
+        delta_t = time.time() - start
+        # Limit time
+        if delta_t > 300:
+            break
         
-    #     img_list = []
+        img_list = []
+        tmp_img = adv_filt[idx]
+        orig_img = tmp_img.copy()
+        orig_norm = np.linalg.norm(orig_img) # L2 Norm
+        img_list.append(tf.identity(tmp_img))
 
+        # Predictions
+        softmax = resist_model(tmp_img)
+        orig_index = np.argmax(softmax[0])
+        one_hot = keras.utils.to_categorical([orig_index], 10)
+        label_top5 = np.argsort(softmax[0][:-5])
+
+        folMax = 0
+        epoch = 0
+        total_sets = []
+        while len(img_list) > 0:
+            gen_img = img_list.pop(0)
+            for _ in range(2):
+                gen_img = tf.Variable(gen_img)
+                with tf.GradientTape(persistent=True) as tape:
+                    loss = keras.losses.categorical_crossentropy(one_hot, resist_model(gen_img))
+                    grads = tape.gradient(loss, gen_img)
+                    fol = tf.norm(grads+1e-20)
+                    tape.watch(fol)
+                    softmax = resist_model(gen_img)
+                    obj = fol - softmax[0][orig_index]
+                    dl_di = tape.gradient(obj, gen_img)  # minimize obj
+
+                del tape
+
+                gen_img = gen_img + dl_di * lr * (random.random() + 0.5)
+                gen_img = tf.clip_by_value(gen_img, clip_value_min=0, clip_value_max=1)
+
+                with tf.GradientTape() as tape:
+                    tape.watch(gen_img)
+                    loss = keras.losses.categorical_crossentropy(one_hot, resist_model(gen_img))
+                    grads = tape.gradient(loss, gen_img)
+                    fol = np.linalg.norm(grads.numpy())
+
+                # make sure perturbation is not too large
+                dist = np.linalg.norm(gen_img.numpy() - orig_img) / orig_norm
+                if fol > folMax and dist < 0.5:
+                    folMax = fol
+                    img_list.append(tf.identity(gen_img))
+                
+                gen_index = np.argmax(resist_model(gen_img))[0]
+                
