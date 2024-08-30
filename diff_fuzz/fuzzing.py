@@ -91,17 +91,17 @@ def mim_atk_loader(model, model_logits):
         test_label = label
         # start attacking:
         print("Attacked Image Number")
-        
+        # Output the adv_image
         adv_image = mim_atk.momentum_iterative_method(
             model_fn=logits_model,
-            x=tf.convert_to_tensor(np.expand_dims(test_image, axis=0)),  # Add batch dimension
+            x=tf.convert_to_tensor(np.expand_dims(test_image, axis=0)), 
             eps=0.4,
             eps_iter=0.08,
             nb_iter=20,
             norm=np.inf,
             clip_min=0.0,
             clip_max=1.0,
-            y=tf.convert_to_tensor([test_label]),  # True label, change if you want a targeted attack
+            y=tf.convert_to_tensor([test_label]),  
             targeted=False,
             decay_factor=1.0,
             sanity_checks=False,

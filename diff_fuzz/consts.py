@@ -8,3 +8,6 @@ ATTCK_SAMPLE_PATH_CW2 = 'cw_2_Atks.npz'
 
 FILTER_SAMPLE_PATH_MIM = 'mim_Atk_Filter.npz'
 ATTCK_SAMPLE_PATH_MIM = 'mim_Atks.npz'
+
+FILTER_SAMPLE_PATH_BIM = 'bim_Atk_Filter.npz'
+ATTCK_SAMPLE_PATH_BIM = 'bim_Atks.npz'
