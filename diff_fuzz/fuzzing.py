@@ -56,25 +56,6 @@ def df_atk_loader(model):
     return adv_all
 
 # Other Attack method generator:
-def cw_atk_loader(model, model_logits):
-    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
-    adv_all = []
-    for imgs in x_train:
-        target_class_ohe = to_categorical(0, num_classes=10)
-        attack = cw_test.CW2(model_logits, k = 0)
-        _, _, orig_label, adv_label, adv_img = attack.generate(model, imgs, target_class_ohe)
-        if adv_label != orig_label:
-            adv_all.append(adv_img)
-        if len(adv_all) % 1000 == 0:
-            print("[INFO] Now Successful CW Attack Num:", len(adv_all))
-            if len(adv_all) == consts.ATTACK_SAMPLE_LIMIT: break
-
-    print("[INFO] Success CW Attack Num:", len(adv_all))
-    adv_all = tf.Variable(adv_all).numpy() # shape = (limit, 1, 28, 28)
-    adv_all = adv_all.reshape(adv_all.shape[0], 28, 28, 1)
-    np.savez(consts.ATTCK_SAMPLE_PATH_CW2, advs=adv_all)
-
-
 def mim_atk_loader(model, model_logits):
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
     adv_all = []
