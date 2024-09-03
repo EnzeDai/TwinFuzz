@@ -6,7 +6,9 @@ Below is the tensorflow code for the The BasicIterativeMethod attack.
 """
 import numpy as np
 import tensorflow as tf
-from utils_attack import optimize_linear, compute_gradient, clip_eta, random_lp_vector
+import attacks
+
+#from utils_attack import optimize_linear, compute_gradient, clip_eta, random_lp_vector
 
 
 def fgsm_atk(
@@ -64,9 +66,9 @@ def fgsm_atk(
         # Using model predictions as ground truth to avoid label leaking
         y = tf.argmax(model_fn(x), 1)
 
-    grad = compute_gradient(model_fn, loss_fn, x, y, targeted)
+    grad = attacks.utils_attack.compute_gradient(model_fn, loss_fn, x, y, targeted)
 
-    optimal_perturbation = optimize_linear(grad, eps, norm)
+    optimal_perturbation = attacks.utils_attack.optimize_linear(grad, eps, norm)
     # Add perturbation to original example to obtain adversarial example
     adv_x = x + optimal_perturbation
 
@@ -153,14 +155,14 @@ def pgd_atk(
         rand_minmax = eps
 
     if rand_init:
-        eta = random_lp_vector(
+        eta = attacks.utils_attack.random_lp_vector(
             tf.shape(x), norm, tf.cast(rand_minmax, x.dtype), dtype=x.dtype
         )
     else:
         eta = tf.zeros_like(x)
 
     # Clip eta
-    eta = clip_eta(eta, norm, eps)
+    eta = attacks.utils_attack.clip_eta(eta, norm, eps)
     adv_x = x + eta
     if clip_min is not None or clip_max is not None:
         adv_x = tf.clip_by_value(adv_x, clip_min, clip_max)
@@ -183,9 +185,9 @@ def pgd_atk(
             targeted=targeted,
         )
 
-        # Clipping perturbation eta to norm norm ball
+        # Clipping perturbation aeta to norm norm ball
         eta = adv_x - x
-        eta = clip_eta(eta, norm, eps)
+        eta = attacks.utils_attack.clip_eta(eta, norm, eps)
         adv_x = x + eta
 
         # Redo the clipping.
@@ -240,59 +242,59 @@ def basic_iterative_method(
     )
 
 
-# Below are the test code：
-# Load the MNIST dataset and the model
-(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-x_test = np.expand_dims(x_test, axis = -1).astype(np.float32) / 255 # randomize the input dataset
+# # Below are the test code：
+# # Load the MNIST dataset and the model
+# (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+# x_test = np.expand_dims(x_test, axis = -1).astype(np.float32) / 255 # randomize the input dataset
 
-# Load the pre-trained model
-mnist_model_logits = tf.keras.models.load_model("/ssd-sata1/mwt/def_project/DiffRobOT/MNIST/LeNet5_MNIST_logits.h5")
-# mnist_model_logits = tf.keras.models.load_model("/ssd-sata1/mwt/def_project/DiffRobOT/MNIST/LeNet5_MNIST_normal.h5")
+# # Load the pre-trained model
+# mnist_model_logits = tf.keras.models.load_model("/data/mwt/DiffRobOT/MNIST/LeNet5_MNIST.h5")
+# # mnist_model_logits = tf.keras.models.load_model("/ssd-sata1/mwt/def_project/DiffRobOT/MNIST/LeNet5_MNIST_normal.h5")
 
-# Define a single MNIST image for testing
-test_image = x_test[10]  # Use the first test image
-test_label = y_test[10]  # Use the corresponding label
+# # Define a single MNIST image for testing
+# test_image = x_test[10]  # Use the first test image
+# test_label = y_test[10]  # Use the corresponding label
 
-print(test_label)
+# print(test_label)
 
-# Run the BIM attack
-adv_image = basic_iterative_method(
-    model_fn=mnist_model_logits,
-    x=tf.convert_to_tensor(np.expand_dims(test_image, axis=0)),  # Add batch dimension
-    # x = test_image,
-    eps=0.4,
-    eps_iter=0.08,
-    nb_iter=20,
-    norm=np.inf,
-    clip_min=0.0,
-    clip_max=1.0,
-    y=tf.convert_to_tensor([test_label]),  
-    #y = test_label,
-    targeted=False,
-    rand_init=False,
-    rand_minmax=0.3, #Initialize
-    sanity_checks=False,
-)
+# # Run the BIM attack
+# adv_image = basic_iterative_method(
+#     model_fn=mnist_model_logits,
+#     x=tf.convert_to_tensor(np.expand_dims(test_image, axis=0)),  # Add batch dimension
+#     # x = test_image,
+#     eps=0.4,
+#     eps_iter=0.08,
+#     nb_iter=20,
+#     norm=np.inf,
+#     clip_min=0.0,
+#     clip_max=1.0,
+#     y=tf.convert_to_tensor([test_label]),  
+#     #y = test_label,
+#     targeted=False,
+#     rand_init=False,
+#     rand_minmax=0.3, #Initialize
+#     sanity_checks=False,
+# )
 
 
 
-# Print out the original label
-mnist_model = tf.keras.models.load_model("/ssd-sata1/mwt/def_project/DiffRobOT/MNIST/LeNet5_MNIST_normal.h5")
+# # Print out the original label
+# mnist_model = tf.keras.models.load_model("/data/mwt/DiffRobOT/MNIST/LeNet5_MNIST.h5")
 
-# Print out the total perturbation in L2 Norm
-total_perturbation = np.linalg.norm(adv_image - test_image)
+# # Print out the total perturbation in L2 Norm
+# total_perturbation = np.linalg.norm(adv_image - test_image)
 
-# Get original label
-original_label = np.argmax(mnist_model.predict(np.expand_dims(test_image, axis = 0)))
+# # Get original label
+# original_label = np.argmax(mnist_model.predict(np.expand_dims(test_image, axis = 0)))
 
-# Get adversarial label
-adv_label = np.argmax(mnist_model.predict(adv_image))
+# # Get adversarial label
+# adv_label = np.argmax(mnist_model.predict(adv_image))
 
-adv_image = tf.squeeze(adv_image, axis =-1) # Remove the last channel
-print(adv_image)
+# adv_image = tf.squeeze(adv_image, axis =-1) # Remove the last channel
+# print(adv_image.shape)
 
-# Output results
-print(f"Original Label: {original_label}")
-print(f"Adversarial Label: {adv_label}")
-print(f"Total Perturbation (L2 norm): {total_perturbation}")
-print(f"Total Iterations: {20}")  # The number of iterations is specified by `nb_iter'.
+# # Output results
+# print(f"Original Label: {original_label}")
+# print(f"Adversarial Label: {adv_label}")
+# print(f"Total Perturbation (L2 norm): {total_perturbation}")
+# print(f"Total Iterations: {20}")  # The number of iterations is specified by `nb_iter'.
