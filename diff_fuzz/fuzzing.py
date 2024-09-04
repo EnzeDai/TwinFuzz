@@ -9,8 +9,7 @@ from tensorflow import keras
 
 import consts
 sys.path.append("../")
-import attacks.bim_atk as bim_atk
-from attacks import deepfool, mim_atk
+from attacks import deepfool, mim_atk, bim_atk
 from seed_ops import filter_data
 
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
