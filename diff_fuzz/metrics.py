@@ -50,5 +50,6 @@ def entropy(prob):
 def entro_ib(prob, orig_idx, target):
     one_hot = keras.utils.to_categorical([orig_idx], 10)
     ib = keras.losses.categorical_crossentropy(one_hot, target) + consts.BETA * entropy(prob)
+    ib = tf.squeeze(ib)
 
     return ib
