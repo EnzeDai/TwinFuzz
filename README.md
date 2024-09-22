@@ -9,12 +9,10 @@ conda activate py37-tf2-gpu
 pip3 install -r requirements.txt
 ```
 
-The following works are used as comparison objects
+The following works are used for comparison
 - DLFuzz
 
-paper: https://dl.acm.org/doi/10.1145/3236024.3264835
-
-code: https://github.com/turned2670/DLFuzz
+paper: https://dl.acm.org/doi/10.1145/3236024.3264835    code: https://github.com/turned2670/DLFuzz
 
 - DeepXplore
 
