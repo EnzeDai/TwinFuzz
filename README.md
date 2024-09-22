@@ -12,7 +12,7 @@ pip3 install -r requirements.txt
 The following works are used for comparison
 - RobOT
 
-📑 Paper: https://dl.acm.org/doi/10.1109/ICSE43902.2021.00038  🧑‍💻Code: https://github.com/Testing4AI/RobOT
+📑 *RobOT: Robustness-Oriented Testing for Deep Learning Systems*  🧑‍💻Code: https://github.com/Testing4AI/RobOT
 
 - DLFuzz
 
