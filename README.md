@@ -10,10 +10,15 @@ pip3 install -r requirements.txt
 ```
 
 The following works are used for comparison
+- RobOT
+
+📑 Paper: https://dl.acm.org/doi/10.1109/ICSE43902.2021.00038  🧑‍💻Code: https://github.com/Testing4AI/RobOT
+
 - DLFuzz
 
-paper: https://dl.acm.org/doi/10.1145/3236024.3264835    code: https://github.com/turned2670/DLFuzz
+📑 Paper: https://dl.acm.org/doi/10.1145/3236024.3264835    🧑‍💻Code: https://github.com/turned2670/DLFuzz
 
 - DeepXplore
 
-- RobOT
+📑 Paper: https://dl.acm.org/doi/10.1145/3361566  🧑‍💻Code: https://github.com/peikexin9/deepxplore
+
