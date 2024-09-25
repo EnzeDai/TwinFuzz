@@ -50,4 +50,7 @@ name = LeNet4
 dataset = MNIST
 advSample = 12000
 ```
-
+Now you are all set to start testing.
+```bash
+python fuzzing.py
+```
