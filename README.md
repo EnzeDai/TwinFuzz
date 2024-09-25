@@ -39,7 +39,7 @@ python std_adv_train.py
 *LeNet4_MNIST_Adv_12000.h5* in the checkpoint folder is the pre adversarial trained model, following the naming rule as *{model_name}_{dataset}\_Adv\_{advSample}.h5*.
 
 ## 0x03 Start Testing
-Before we start testing, the config.ini should be configured.
+Before testing, the config.ini should be configured.
 ```bash
 cd diff_fuzz
 vim config.ini
