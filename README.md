@@ -19,6 +19,12 @@ Take training LeNet4 under MNIST as an example.
 cd MNIST
 python train_models.py -m lenet4
 ```
+for larger datasets, take PACS as an example(pretrained weight required):
+```bash
+cd PACS
+python models.py -m pretrain_Resnet50
+```
+
 Then the model is saved as *LeNet4_MNIST.h5*, following the naming rule as *{model_name}_{dataset}.h5*.
 
 Next, the pre adversarial trained model for differential testing should be obtained.
