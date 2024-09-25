@@ -40,6 +40,10 @@ python std_adv_train.py
 
 ## 0x03 Start Testing
 Before we start testing, the config.ini should be configured.
+```bash
+cd diff_fuzz
+vim config.ini
+```
 ```ini
 [model]
 name = LeNet4
