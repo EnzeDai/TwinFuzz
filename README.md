@@ -54,12 +54,12 @@ python fuzzing.py
 
 ## 0x04 Comparison with Previous Works
 The following works are used for comparison
-1. 📑 *RobOT: Robustness-Oriented Testing for Deep Learning Systems*
+1. 📑 *RobOT: Robustness-Oriented Testing for Deep Learning Systems (ICSE)*
    - 🧑‍💻Code: https://github.com/Testing4AI/RobOT
 
-2. 📑 *DLFuzz: differential fuzzing testing of deep learning systems*
+2. 📑 *DLFuzz: differential fuzzing testing of deep learning systems (FSE)*
    - 🧑‍💻Code: https://github.com/turned2670/DLFuzz
 
-3. 📑 *DeepXplore: automated whitebox testing of deep learning systems*
+3. 📑 *DeepXplore: automated whitebox testing of deep learning systems (SOSP)*
    - 🧑‍💻Code: https://github.com/peikexin9/deepxplore
 
