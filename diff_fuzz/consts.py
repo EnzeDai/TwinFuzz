@@ -6,11 +6,15 @@ BETA = 10
 FILTER_SAMPLE_PATH = 'DeepFool_Atk_Filter.npz'
 ATTACK_SAMPLE_PATH = 'DeepFool_Atks.npz'
 
-FILTER_SAMPLE_PATH_CW2 = 'cw_2_Atk_Filter.npz'
-ATTCK_SAMPLE_PATH_CW2 = 'cw_2_Atks.npz'
+# FILTER_SAMPLE_PATH_CW2 = 'cw_2_Atk_Filter.npz'
+# ATTCK_SAMPLE_PATH_CW2 = 'cw_2_Atks.npz'
 
-FILTER_SAMPLE_PATH_MIM = 'mim_Atk_Filter.npz'
-ATTCK_SAMPLE_PATH_MIM = 'mim_Atks.npz'
+FILTER_SAMPLE_PATH_MIM = 'MIM_Atk_Filter.npz'
+ATTCK_SAMPLE_PATH_MIM = 'MIM_Atks.npz'
 
-FILTER_SAMPLE_PATH_BIM = 'bim_Atk_Filter.npz'
-ATTCK_SAMPLE_PATH_BIM = 'bim_Atks.npz'
+FILTER_SAMPLE_PATH_BIM = 'BIM_Atk_Filter.npz'
+ATTCK_SAMPLE_PATH_BIM = 'BIM_Atks.npz'
+
+BIM_EVAL_PATH = 'MIM_Eval.npz'
+MIM_EVAL_PATH = 'BIM_Eval.npz'
+DF_EVAL_PATH = 'DeepFool_Eval.npz'
