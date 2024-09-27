@@ -4,9 +4,11 @@ import tensorflow as tf
 from tensorflow import keras
 
 import consts
+import fuzzing
 sys.path.append("../")
 from attacks import deepfool, mim_atk, bim_atk
 
+name, dataset, _, test_time = fuzzing.read_conf()
 
 # DeepFool attack generator
 def df_atk_loader(model):
@@ -45,7 +47,7 @@ def df_eval_loader(model):
     print("[INFO] Success DeepFool Evaluation Num:", len(eval_all))
     eval_all = tf.Variable(eval_all).numpy() # shape = (limit, 1, 28, 28)
     eval_all = eval_all.reshape(eval_all.shape[0], 28, 28, 1)
-    np.savez(consts.DF_EVAL_PATH, eval=eval_all, labels=labels)
+    np.savez(consts.DF_EVAL_PATH.split('.')[0] + name + dataset + '.npz', eval=eval_all, labels=labels)
     
     return eval_all, labels
 
@@ -133,7 +135,7 @@ def mim_eval_loader(model):
     print("[INFO] Success MIM Evaluation Num:", len(eval_all))
     eval_all = tf.Variable(eval_all).numpy() # shape = (limit, 1, 28, 28)
     eval_all = eval_all.reshape(eval_all.shape[0], 28, 28, 1)
-    np.savez(consts.MIM_EVAL_PATH, eval=eval_all, labels=labels)
+    np.savez(consts.MIM_EVAL_PATH.split('.')[0] + name + dataset + '.npz', eval=eval_all, labels=labels)
     
     return eval_all, labels
 
@@ -235,6 +237,6 @@ def bim_eval_loader(model):
     print("[INFO] Success MIM Evalution Num:", len(eval_all))
     eval_all = tf.Variable(eval_all).numpy() # shape = (limit, 1, 28, 28)
     eval_all = eval_all.reshape(eval_all.shape[0], 28, 28, 1)
-    np.savez(consts.BIM_EVAL_PATH, eval=eval_all, labels=labels)
+    np.savez(consts.BIM_EVAL_PATH.split('.')[0] + name + dataset + '.npz', eval=eval_all, labels=labels)
 
     return eval_all, labels
