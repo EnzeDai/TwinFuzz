@@ -33,12 +33,29 @@ elif not os.path.exists(consts.MIM_EVAL_PATH):
 elif not os.path.exists(consts.BIM_EVAL_PATH):
     loader.bim_eval_loader(vulner_model)
 
-# Load eval inputs for Robustness Evaluation, DeepFool or others
+# Load eval inputs for Robustness Evaluation
+# DeepFool
 with np.load(consts.DF_EVAL_PATH) as df:
     df_test, df_labels = df['eval'], df['labels']
 
 resist_eval_idxs = np.argmax(resist_model(df_test), axis=1)
 same_preds = fuzzing.find_same(resist_eval_idxs, df_labels)
-rob_acc = len(same_preds) / len(df_test)
+rob_acc_df = len(same_preds) / len(df_test)
 
-print(rob_acc)
+# MIM
+with np.load(consts.MIM_EVAL_PATH) as mi:
+    mi_test, mi_labels = mi['eval'], mi['labels']
+
+resist_eval_idxs = np.argmax(resist_model(mi_test), axis=1)
+same_preds = fuzzing.find_same(resist_eval_idxs, mi_labels)
+rob_acc_mi = len(same_preds) / len(mi_test)
+
+# BIM
+with np.load(consts.BIM_EVAL_PATH) as bi:
+    bi_test, bi_labels = bi['eval'], bi['labels']
+
+resist_eval_idxs = np.argmax(resist_model(bi_test), axis=1)
+same_preds = fuzzing.find_same(resist_eval_idxs, bi_labels)
+rob_acc_bi = len(same_preds) / len(bi_test)
+
+print("DeepFool Rob Acc:", rob_acc_df, "MIM Rob Acc:", rob_acc_mi, "BIM Rob Acc:", rob_acc_bi)

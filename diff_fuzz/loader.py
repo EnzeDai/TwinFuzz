@@ -97,6 +97,7 @@ def mim_atk_loader(model):
 def mim_eval_loader(model):
     (_, _), (x_test, y_test) = keras.datasets.mnist.load_data()
     eval_all = []
+    labels = []
     atk_numbers=0
     for imgs, label in zip(x_test, y_test):
         
@@ -119,22 +120,22 @@ def mim_eval_loader(model):
         # Predict the adv label after the adversarial attack
         adv_label = np.argmax(normal_model.predict(adv_image))
         # Output results
-        print(f"Original Label: {orig_label}")
-        print(f"Adversarial Label: {adv_label}")
-        print(f"Total Perturbation (L2 norm): {tot_pert}")
+        print(f"Original Label: {orig_label}, Adversarial Label: {adv_label}, Total Perturbation (L2 norm): {tot_pert}")
         # print(f"Total Iterations: {10}")  # The number of iterations is specified by `nb_iter`
         atk_numbers = atk_numbers + 1
         print(atk_numbers)
         if adv_label != orig_label:
             eval_all.append(adv_image)
+            labels.append(orig_label)
         if len(eval_all) % 1000 == 0:
             print("[INFO] Now Successful MIM Evaluation Num:", len(eval_all))
     
     print("[INFO] Success MIM Evaluation Num:", len(eval_all))
     eval_all = tf.Variable(eval_all).numpy() # shape = (limit, 1, 28, 28)
     eval_all = eval_all.reshape(eval_all.shape[0], 28, 28, 1)
-    np.savez(consts.MIM_EVAL_PATH, eval=eval_all)
-    return eval_all
+    np.savez(consts.MIM_EVAL_PATH, eval=eval_all, labels=labels)
+    
+    return eval_all, labels
 
 # Basic_Iterative_Method Attack DataLoader for MNIST:
 def bim_atk_loader(model):
