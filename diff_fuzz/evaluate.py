@@ -1,12 +1,13 @@
 import os
 import sys
+import configparser
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
 import consts
-import fuzzing
 import loader
+import fuzzing
 sys.path.append("../")
 
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
@@ -18,8 +19,19 @@ if gpus:
     except RuntimeError as e:
         print(e)
 
+# Load configurations from config.ini
+def read_conf():
+    conf = configparser.ConfigParser()
+    conf.read('config.ini')
+    name = conf.get('model', 'name')
+    dataset = conf.get('model', 'dataset')
+    adv_sample_num = conf.get('model', 'advSample')
+    test_duration = conf.get('model', 'duration')
+
+    return name, dataset, adv_sample_num, test_duration
+
 # Two models under testing
-name, dataset, adv_sample_num, _ = fuzzing.read_conf()
+name, dataset, adv_sample_num, _ = read_conf()
 resist_model = keras.models.load_model(f"../{dataset}/checkpoint/{name}_{dataset}_Adv_{adv_sample_num}.h5")
 vulner_model = keras.models.load_model(f"../{dataset}/{name}_{dataset}.h5")
 # Model after testing
