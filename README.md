@@ -4,9 +4,9 @@
 @inproceedings{twinfuzz,
  author = {Dai, Enze and Mo, Wentao and Hu, Kun and Zhu, Xiaogang and Xiao, Xi and Wen, Sheng and Wang, Shaohua and Xiang, Yang}, 
  title = {TwinFuzz: Dual-Model Fuzzing for Robustness Generalization in Deep Learning},
- booktitle = {Proceedings of the 40th AAAI Conference on Artificial Intelligence (AAAI'26)},
+ booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+ volume={40},
  year = {2026},
- numpages = {9},
 }
 ```
 
